@@ -27,6 +27,10 @@
   reverse-charge: false,
   // Is the price of items including Vat or excluding vat? Default is B2C, inclusive.
   includes-vat: true,
+  // Invoice currency
+  currency: "EUR",
+  // FX rate to EUR per ECB rate (e.g., 0.93 means 1 USD = 0.93 EUR)
+  fx-rate: none,
 ) = {
   set text(lang: "de", region: "DE")
 
@@ -87,6 +91,11 @@
 
   let no-vat = kleinunternehmer or reverse-charge
 
+  let currency-symbol = if currency == "EUR" { "€" }
+    else if currency == "USD" { "$" }
+    else if currency == "GBP" { "£" }
+    else { currency }
+
   let base_price_f = if no-vat {
     1.0
   } else if includes-vat {
@@ -116,7 +125,7 @@
   let total = items.map((item) => item.price * total_f).sum()
 
   let items = items.enumerate().map(
-    ((id, item)) => ([#str(id + 1).], [#item.description], [#format_currency(item.price * base_price_f)€],),
+    ((id, item)) => ([#str(id + 1).], [#item.description], [#format_currency(item.price * base_price_f)#currency-symbol],),
   ).flatten()
 
   [
@@ -134,7 +143,7 @@
         #set align(end)
         Summe:
       ],
-      [#format_currency(base_price)€],
+      [#format_currency(base_price)#currency-symbol],
       table.hline(start: 2),
       ..if not no-vat {(
         [],
@@ -143,7 +152,7 @@
           #set align(end)
           #str(vat * 100)% Mehrwertsteuer:
         ],
-        [#format_currency(total_vat)€],
+        [#format_currency(total_vat)#currency-symbol],
         table.hline(start: 2),
         [],
       )} else {([], [], [], [])},
@@ -151,7 +160,7 @@
         #set align(end)
         *Gesamt:*
       ],
-      [*#format_currency(total)€*],
+      [*#format_currency(total)#currency-symbol*],
       table.hline(start: 2),
     )
   ]
@@ -171,13 +180,8 @@
 
   v(1em)
 
-  // This is the content of an https://en.wikipedia.org/wiki/EPC_QR_code version 002
-  // Eventually this could be put into its own package?
-  let epc-qr-content = (
-    "BCD\n" + "002\n" + "1\n" + "SCT\n" + bank-account.bic + "\n" + bank-account.name + "\n" + bank-account.iban + "\n" + "EUR" + format_currency(total, locale: "en") + "\n" + "\n" + invoice-nr + "\n" + "\n" + "\n"
-  )
-
-  grid(columns: (1fr, 1fr), gutter: 1em, align: top, [
+  // Bank details block (shared between EUR and non-EUR)
+  let bank-details = [
     #set par(leading: 0.40em)
     #set text(number-type: "lining")
     #(bank-account
@@ -186,7 +190,22 @@
     Kreditinstitut: #bank-account.bank \
     IBAN: *#iban(bank-account.iban)* \
     BIC: #bank-account.bic
-  ], qr-code(epc-qr-content, height: 4em))
+    #if currency != "EUR" and fx-rate != none [
+      \ Rechnungsbetrag in EUR: #format_currency(total * fx-rate)€ (Kurs: #fx-rate)
+    ]
+  ]
+
+  if currency == "EUR" {
+    // EPC QR code only for EUR (SEPA standard)
+    // https://en.wikipedia.org/wiki/EPC_QR_code version 002
+    let epc-qr-content = (
+      "BCD\n" + "002\n" + "1\n" + "SCT\n" + bank-account.bic + "\n" + bank-account.name + "\n" + bank-account.iban + "\n" + "EUR" + format_currency(total, locale: "en") + "\n" + "\n" + invoice-nr + "\n" + "\n" + "\n"
+    )
+    grid(columns: (1fr, 1fr), gutter: 1em, align: top, bank-details, qr-code(epc-qr-content, height: 4em))
+  } else {
+    // No QR code for non-EUR currencies
+    bank-details
+  }
 
   [
     Steuernummer: #author.tax_nr \

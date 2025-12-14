@@ -54,6 +54,11 @@
   // When kleinunternehmer or reverse-charge is true, includes-vat is ignored
   kleinunternehmer: false,
   reverse-charge: false,
-  includes-vat: true
+  includes-vat: true,
+  // currency: Invoice currency ("EUR", "USD", "GBP", etc.)
+  // fx-rate: Exchange rate to EUR per ECB rate (e.g., 0.93 for USD)
+  // Note: QR code only shown for EUR invoices
+  currency: "EUR",
+  // fx-rate: 0.93,
 )
 
