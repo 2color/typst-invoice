@@ -101,6 +101,9 @@
     else if currency == "GBP" { "£" }
     else { currency }
 
+  // EUR uses comma as decimal separator, other currencies use dot
+  let currency-locale = if currency == "EUR" { "de" } else { "en" }
+
   let base_price_f = if no-vat {
     1.0
   } else if includes-vat {
@@ -130,7 +133,7 @@
   let total = items.map((item) => item.price * total_f).sum()
 
   let items = items.enumerate().map(
-    ((id, item)) => ([#str(id + 1).], [#item.description], [#format_currency(item.price * base_price_f)#currency-symbol],),
+    ((id, item)) => ([#str(id + 1).], [#item.description], [#format_currency(item.price * base_price_f, locale: currency-locale)#currency-symbol],),
   ).flatten()
 
   [
@@ -148,7 +151,7 @@
         #set align(end)
         Summe:
       ],
-      [#format_currency(base_price)#currency-symbol],
+      [#format_currency(base_price, locale: currency-locale)#currency-symbol],
       table.hline(start: 2),
       ..if not no-vat {(
         [],
@@ -157,7 +160,7 @@
           #set align(end)
           #str(vat * 100)% Mehrwertsteuer:
         ],
-        [#format_currency(total_vat)#currency-symbol],
+        [#format_currency(total_vat, locale: currency-locale)#currency-symbol],
         table.hline(start: 2),
         [],
       )} else {([], [], [], [])},
@@ -165,7 +168,7 @@
         #set align(end)
         *Gesamt:*
       ],
-      [*#format_currency(total)#currency-symbol*],
+      [*#format_currency(total, locale: currency-locale)#currency-symbol*],
       table.hline(start: 2),
     )
   ]
