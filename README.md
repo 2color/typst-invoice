@@ -22,7 +22,7 @@ No installation needed: open [typst.app](https://typst.app), create a new projec
     ),
     (
       description: "The second service provided",
-      price: 150.2
+      price: 150
     ),
   ),
   // Author
@@ -55,8 +55,7 @@ No installation needed: open [typst.app](https://typst.app), create a new projec
   // Umsatzsteuersatz (VAT)
   vat: 0.19,
   kleinunternehmer: true,
-  // includes-vat: Item prices include VAT vs exclude VAT
-  
+  includes-vat: false
 )
 ```
 
@@ -91,7 +90,7 @@ The template will:
 - Show EUR equivalent amount based on ECB exchange rate
 - Generate EPC QR code with EUR amount (SEPA standard requires EUR)
 
-![](./template/example-usd.png)
+![](thumbnail.png)
 
 
 ## Scope

@@ -49,16 +49,16 @@
   // Umsatzsteuersatz (VAT)
   vat: 0.19,
   // kleinunternehmer: No VAT (German § 19 UStG small business exemption)
+  kleinunternehmer: false,
   // reverse-charge: No VAT for foreign EU B2B customers (customer handles VAT)
+  reverse-charge: false,
+
   // includes-vat: Item prices include VAT vs exclude VAT
   // When kleinunternehmer or reverse-charge is true, includes-vat is ignored
-  kleinunternehmer: false,
-  reverse-charge: false,
   includes-vat: true,
   // currency: Invoice currency ("EUR", "USD", "GBP", etc.)
-  // fx-rate: Exchange rate to EUR per ECB rate (e.g., 0.93 for USD)
-  // Note: QR code only shown for EUR invoices
   currency: "EUR",
+  // fx-rate: Exchange rate to EUR per ECB rate (e.g., 0.93 for USD)
   // fx-rate: 0.93,
 )
 
